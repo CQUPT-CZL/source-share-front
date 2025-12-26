@@ -24,6 +24,14 @@
   }
 }
 
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.animate-spin-slow {
+  animation: spin 3s linear infinite;
+}
+
 html, body, #root {
   height: 100%;
   margin: 0;

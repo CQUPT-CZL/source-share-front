@@ -41,7 +41,7 @@ const AntigravityBackground = () => {
           size: Math.random() * 2 + 0.5, 
           length: Math.random() * 8 + 4, 
           angle: Math.random() * Math.PI * 2,
-          color: Math.random() > 0.6 ? '#94a3b8' : (Math.random() > 0.5 ? '#cbd5e1' : '#e2e8f0'), 
+          color: Math.random() > 0.8 ? '#22d3ee' : (Math.random() > 0.6 ? '#94a3b8' : (Math.random() > 0.5 ? '#cbd5e1' : '#e2e8f0')), 
           // --- 物理参数调整区 ---
           // 摩擦系数：0.92 -> 0.96 (数值越大，速度衰减越慢，滑行更久，更有惯性)
           friction: 0.96, 
