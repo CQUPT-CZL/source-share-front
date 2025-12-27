@@ -1,18 +1,35 @@
 import React, { useState } from 'react';
 import { ArrowRight, ChevronRight, Lock, User, Eye, EyeOff, Cpu, Activity, Disc } from 'lucide-react';
 import AntigravityBackground from '../../components/AntigravityBackground';
+import { api } from '../../utils/api';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
+  const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [hasEntered, setHasEntered] = useState(false);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setTimeout(() => setIsLoading(false), 2000);
+
+    try {
+      const result = await api.login(username, password);
+      
+      if (result.status === 'success') {
+        // 登录成功，跳转到仪表盘
+        navigate('/dashboard');
+      } else {
+        alert(result.message || '登录失败，请检查用户名或密码');
+      }
+    } catch (error) {
+      alert('连接服务器失败，请稍后重试');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
