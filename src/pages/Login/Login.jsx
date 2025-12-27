@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { ArrowRight, ChevronRight, Lock, Mail, Eye, EyeOff, Cpu, Activity, Disc } from 'lucide-react';
+import { ArrowRight, ChevronRight, Lock, User, Eye, EyeOff, Cpu, Activity, Disc } from 'lucide-react';
 import AntigravityBackground from '../../components/AntigravityBackground';
 
 const Login = () => {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -40,48 +40,38 @@ const Login = () => {
       >
         <div className="text-center space-y-8 max-w-5xl px-6 relative">
           
-          {/* 装饰元素：顶部数据流 */}
-          <div className="absolute -top-32 left-1/2 -translate-x-1/2 flex items-center gap-4 text-xs font-mono text-slate-400 opacity-60">
-            <span className="animate-pulse-slow text-cyan-600">SYS.READY</span>
-            <span className="w-16 h-[1px] bg-gradient-to-r from-transparent via-slate-300 to-transparent"></span>
-            <span>V.2.0.45</span>
-          </div>
-
-          <div className="flex flex-col items-center justify-center gap-6 mb-12 animate-fade-in-up">
+          <div className="flex flex-col items-center justify-center gap-8 mb-12 animate-fade-in-up">
             <div className="relative group cursor-default">
               <div className="absolute inset-0 bg-cyan-400/30 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-              <div className="w-20 h-20 rounded-2xl bg-white/80 backdrop-blur-md border border-slate-200/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex items-center justify-center relative z-10 rotate-45 group-hover:rotate-90 transition-all duration-700 ease-out">
-                <Cpu className="text-slate-800 -rotate-45 group-hover:-rotate-90 transition-transform duration-700" size={40} strokeWidth={1.5} />
+              <div className="w-24 h-24 rounded-2xl bg-white/80 backdrop-blur-md border border-slate-200/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex items-center justify-center relative z-10 rotate-45 group-hover:rotate-90 transition-all duration-700 ease-out">
+                <Cpu className="text-slate-800 -rotate-45 group-hover:-rotate-90 transition-transform duration-700" size={48} strokeWidth={1.5} />
               </div>
             </div>
-            <div className="flex items-center gap-2 mt-4 border border-slate-200/60 bg-white/40 backdrop-blur-sm px-5 py-1.5 rounded-full shadow-sm">
-               <Activity size={14} className="text-cyan-600" />
-               <span className="text-sm font-mono tracking-widest text-slate-600 uppercase">LL-Group // System</span>
+            <div className="flex items-center gap-3 px-8 py-3 rounded-full bg-white/60 backdrop-blur-md border border-slate-200/50 shadow-sm transition-transform hover:scale-105 duration-300">
+               <Activity size={24} className="text-cyan-600" />
+               <span className="text-xl font-orbitron font-bold tracking-widest text-slate-800 uppercase">LL-Group</span>
             </div>
           </div>
 
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-orbitron font-black tracking-tighter text-slate-900 leading-[0.9] animate-fade-in-up delay-100 uppercase mix-blend-multiply whitespace-nowrap drop-shadow-sm">
-            资源共享
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-800 via-cyan-900 to-slate-600 ml-4">平台</span>
+            内部资源
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-800 via-cyan-900 to-slate-600 ml-4">共享仓</span>
           </h1>
           
-          <p className="text-xl md:text-2xl font-rajdhani font-medium text-slate-600 max-w-2xl mx-auto leading-relaxed animate-fade-in-up delay-200 mt-8 text-center">
-            深度整合课程与学位论文核心资产，实现小组知识的<span className="text-slate-900 font-bold border-b-2 border-cyan-400/30">结构化沉淀</span>与<span className="text-slate-900 font-bold border-b-2 border-cyan-400/30">高效传承</span>。
+          <p className="text-sm font-rajdhani font-medium text-slate-600 max-w-2xl mx-auto leading-relaxed animate-fade-in-up delay-200 mt-6 text-center whitespace-nowrap">
+            深度整合课程与学位论文核心资产，实现小组知识的<span className="text-slate-900 font-bold border-b border-cyan-400/30">结构化沉淀</span>与<span className="text-slate-900 font-bold border-b border-cyan-400/30">高效传承</span>。
           </p>
 
-          <div className="pt-16 animate-fade-in-up delay-300 flex justify-center">
+          <div className="pt-12 animate-fade-in-up delay-300 flex justify-center">
             <button 
               onClick={() => setHasEntered(true)}
               className="group relative px-12 py-6 bg-slate-900 text-white font-orbitron font-bold tracking-widest transition-all hover:scale-105 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.3)] overflow-hidden rounded-sm"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               <span className="relative z-10 flex items-center gap-3 text-lg">
-                启动会话 <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                进入系统 <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
               </span>
             </button>
-          </div>
-          <div className="mt-6 font-mono text-xs text-slate-400 animate-fade-in-up delay-500">
-            安全连接已建立 • 访问加密
           </div>
         </div>
       </div>
@@ -122,27 +112,24 @@ const Login = () => {
                       <p className="text-slate-500 font-mono text-xs tracking-wider">SYSTEM ONLINE</p>
                     </div>
                  </div>
-                 <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center shadow-inner">
-                   <Disc className="text-slate-900 animate-spin-slow opacity-80" size={24} strokeWidth={1.5} />
-                 </div>
               </div>
 
               <form onSubmit={handleLogin} className="space-y-8 relative z-10">
                 <div className="space-y-6">
                   <div className="relative group">
                      <label className="flex justify-between text-xs font-mono text-slate-500 mb-2 uppercase tracking-wider font-semibold">
-                       <span>User // Email</span>
+                       <span>User // ID</span>
                      </label>
                      <div className="relative transition-all duration-300 transform group-focus-within:-translate-y-1">
                         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
-                          <Mail className="h-5 w-5 text-slate-400 group-focus-within:text-cyan-600 transition-colors" strokeWidth={1.5} />
+                          <User className="h-5 w-5 text-slate-400 group-focus-within:text-cyan-600 transition-colors" strokeWidth={1.5} />
                         </div>
                         <input
-                          type="email"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
+                          type="text"
+                          value={username}
+                          onChange={(e) => setUsername(e.target.value)}
                           className="block w-full pl-12 pr-4 py-4 bg-slate-50/50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-300 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-500/10 focus:bg-white transition-all font-rajdhani font-semibold text-lg shadow-sm"
-                          placeholder="user@ll-group.io"
+                          placeholder="例如: zs (张三)"
                           required
                         />
                      </div>
@@ -150,7 +137,7 @@ const Login = () => {
 
                   <div className="relative group">
                     <label className="flex justify-between text-xs font-mono text-slate-500 mb-2 uppercase tracking-wider font-semibold">
-                      <span>Key // Password</span>
+                      <span>Password</span>
                     </label>
                     <div className="relative transition-all duration-300 transform group-focus-within:-translate-y-1">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
@@ -206,37 +193,6 @@ const Login = () => {
                   </span>
                 </button>
               </form>
-
-              {/* Social Login */}
-              <div className="mt-8">
-                <div className="relative flex justify-center text-xs font-mono uppercase mb-4">
-                   <div className="absolute inset-0 flex items-center">
-                     <div className="w-full border-t border-slate-200"></div>
-                   </div>
-                   <span className="bg-white/80 backdrop-blur px-2 text-slate-400 relative z-10">Or Connect Via</span>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <button type="button" className="flex items-center justify-center px-4 py-2.5 border border-slate-200 bg-white/50 hover:bg-white hover:border-slate-900 transition-all group rounded-lg shadow-sm">
-                     <span className="text-xs font-mono font-bold text-slate-600 group-hover:text-slate-900 flex items-center gap-2">
-                       <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .533 5.333.533 12S5.867 24 12.48 24c3.44 0 6.04-1.133 8.16-3.293 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.133H12.48z"/></svg>
-                       GOOGLE
-                     </span>
-                  </button>
-                  <button type="button" className="flex items-center justify-center px-4 py-2.5 border border-slate-200 bg-white/50 hover:bg-white hover:border-slate-900 transition-all group rounded-lg shadow-sm">
-                     <span className="text-xs font-mono font-bold text-slate-600 group-hover:text-slate-900 flex items-center gap-2">
-                       <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-                       GITHUB
-                     </span>
-                  </button>
-                </div>
-              </div>
-            </div>
-            
-            {/* 底部状态栏 */}
-            <div className="bg-slate-50/80 border-t border-slate-100 p-4 flex justify-between items-center text-[10px] font-mono text-slate-400 uppercase tracking-wider">
-               <span>Secure Connection</span>
-               <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-slate-300"></span> Encrypted</span>
             </div>
           </div>
         </div>
