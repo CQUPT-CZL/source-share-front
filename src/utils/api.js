@@ -18,7 +18,7 @@ export const request = async (endpoint, options = {}) => {
   };
 
   // --- 【请求拦截：Debug 输出】 ---
-  if (process.env.NODE_ENV !== 'production') {
+  if (import.meta.env.DEV) {
     console.groupCollapsed(`%c >>> HTTP Request: ${method} ${endpoint}`, 'color: #007bff; font-weight: bold;');
     console.log('Full URL:', url);
     console.log('Headers:', config.headers);
@@ -26,7 +26,7 @@ export const request = async (endpoint, options = {}) => {
       // 尝试解析 JSON 字符串，方便在控制台以对象形式查看
       try {
         console.log('Payload:', JSON.parse(config.body));
-      } catch (e) {
+      } catch {
         console.log('Payload (Raw):', config.body);
       }
     }
@@ -39,7 +39,7 @@ export const request = async (endpoint, options = {}) => {
     const data = await response.json();
     
     // --- 【响应拦截：Debug 输出】 ---
-    if (process.env.NODE_ENV !== 'production') {
+    if (import.meta.env.DEV) {
       console.log(`%c <<< Response from ${endpoint}:`, 'color: #28a745; font-weight: bold;', data);
     }
     // ------------------------------

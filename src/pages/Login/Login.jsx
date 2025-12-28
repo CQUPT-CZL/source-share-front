@@ -25,7 +25,7 @@ const Login = () => {
       } else {
         alert(result.message || '登录失败，请检查用户名或密码');
       }
-    } catch (error) {
+    } catch {
       alert('连接服务器失败，请稍后重试');
     } finally {
       setIsLoading(false);

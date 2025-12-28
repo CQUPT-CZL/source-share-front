@@ -24,7 +24,7 @@ const AntigravityBackground = () => {
     const initParticles = () => {
       particlesRef.current = [];
       // 保持稀疏的密度：200/600
-      const particleCount = width < 768 ? 200 : 600; 
+      const particleCount = width < 768 ? 150 : 400; 
       
       for (let i = 0; i < particleCount; i++) {
         const x = Math.random() * width;
@@ -41,11 +41,10 @@ const AntigravityBackground = () => {
           size: Math.random() * 2 + 0.5, 
           length: Math.random() * 8 + 4, 
           angle: Math.random() * Math.PI * 2,
-          color: Math.random() > 0.8 ? '#22d3ee' : (Math.random() > 0.6 ? '#94a3b8' : (Math.random() > 0.5 ? '#cbd5e1' : '#e2e8f0')), 
+          // Light theme colors: blue-400, slate-400, slate-300
+          color: Math.random() > 0.8 ? '#38bdf8' : (Math.random() > 0.6 ? '#94a3b8' : (Math.random() > 0.5 ? '#cbd5e1' : '#e2e8f0')), 
           // --- 物理参数调整区 ---
-          // 摩擦系数：0.92 -> 0.96 (数值越大，速度衰减越慢，滑行更久，更有惯性)
           friction: 0.96, 
-          // 回归系数：0.05 -> 0.02 (数值越小，回弹越慢，看起来更懒/更重)
           ease: 0.02, 
           type: shapeType > 0.6 ? 'line' : (shapeType > 0.3 ? 'shard' : 'triangle')
         });
@@ -68,7 +67,6 @@ const AntigravityBackground = () => {
           const angle = Math.atan2(dy, dx);
           
           // --- 速度调整区 ---
-          // 推力：8 -> 2.5 (大幅减小，解决移动太快的问题，增加阻力感)
           const pushForce = force * 2.5; 
           
           p.vx -= Math.cos(angle) * pushForce;
@@ -101,56 +99,61 @@ const AntigravityBackground = () => {
         ctx.translate(p.x, p.y);
         ctx.rotate(rotation);
         
+        ctx.globalAlpha = 0.6; // Slightly more transparent for light theme
         ctx.fillStyle = p.color;
         ctx.strokeStyle = p.color;
-        ctx.lineCap = 'round';
-
+        
         if (p.type === 'line') {
-          ctx.lineWidth = p.size * 0.5;
           ctx.beginPath();
           ctx.moveTo(-p.length / 2, 0);
           ctx.lineTo(p.length / 2, 0);
+          ctx.lineWidth = p.size;
           ctx.stroke();
         } else if (p.type === 'shard') {
           ctx.beginPath();
-          ctx.moveTo(-p.size, -p.size * 0.5);
-          ctx.lineTo(p.size, -p.size);
-          ctx.lineTo(p.size * 0.8, p.size);
-          ctx.lineTo(-p.size * 0.8, p.size * 0.5);
+          ctx.moveTo(0, -p.size * 2);
+          ctx.lineTo(p.size, p.size);
+          ctx.lineTo(-p.size, p.size);
           ctx.fill();
         } else {
           ctx.beginPath();
-          ctx.moveTo(p.size * 1.5, 0); 
-          ctx.lineTo(-p.size, p.size * 0.8);
-          ctx.lineTo(-p.size, -p.size * 0.8);
+          ctx.arc(0, 0, p.size, 0, Math.PI * 2);
           ctx.fill();
         }
         
         ctx.restore();
       });
-
+      
       requestAnimationFrame(animate);
     };
-
-    window.addEventListener('resize', resize);
-    resize();
-    animate();
-
+    
+    // 事件监听
     const handleMouseMove = (e) => {
       mouseRef.current = { x: e.clientX, y: e.clientY };
     };
+    
+    const handleMouseLeave = () => {
+      mouseRef.current = { x: -1000, y: -1000 };
+    };
+    
+    window.addEventListener('resize', resize);
     window.addEventListener('mousemove', handleMouseMove);
-
+    window.addEventListener('mouseleave', handleMouseLeave);
+    
+    resize();
+    animate();
+    
     return () => {
       window.removeEventListener('resize', resize);
       window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseleave', handleMouseLeave);
     };
   }, []);
 
   return (
     <canvas 
       ref={canvasRef} 
-      className="fixed top-0 left-0 w-full h-full pointer-events-none z-0 bg-white"
+      className="absolute top-0 left-0 w-full h-full pointer-events-none"
     />
   );
 };
