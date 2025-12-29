@@ -19,7 +19,7 @@ const Login = () => {
     try {
       const result = await api.login(username, password);
       
-      if (result.status === 'success') {
+      if (result.code === 200) {
         // 登录成功，跳转到仪表盘
         navigate('/dashboard');
       } else {
