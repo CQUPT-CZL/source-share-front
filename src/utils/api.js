@@ -18,7 +18,6 @@ export const request = async (endpoint, options = {}) => {
   };
 
   // --- 【请求拦截：Debug 输出】 ---
-  if (import.meta.env.DEV) {
     console.groupCollapsed(`%c >>> HTTP Request: ${method} ${endpoint}`, 'color: #007bff; font-weight: bold;');
     console.log('Full URL:', url);
     console.log('Headers:', config.headers);
@@ -31,7 +30,6 @@ export const request = async (endpoint, options = {}) => {
       }
     }
     console.groupEnd();
-  }
   // ------------------------------
 
   try {
@@ -39,9 +37,7 @@ export const request = async (endpoint, options = {}) => {
     const data = await response.json();
     
     // --- 【响应拦截：Debug 输出】 ---
-    if (import.meta.env.DEV) {
-      console.log(`%c <<< Response from ${endpoint}:`, 'color: #28a745; font-weight: bold;', data);
-    }
+    console.log(`%c <<< Response from ${endpoint}:`, 'color: #28a745; font-weight: bold;', data);
     // ------------------------------
 
     return data;

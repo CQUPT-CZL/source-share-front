@@ -4,12 +4,7 @@ import {
   FileText, 
   Clock, 
   GraduationCap, 
-  User,
-  LogOut,
-  Bell,
-  Search,
   Zap,
-  Cpu,
   Activity,
   ChevronRight,
   Database,
@@ -18,18 +13,23 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import AntigravityBackground from '../../components/AntigravityBackground';
+import TopNavigation from '../../components/TopNavigation';
 
-const SYSTEM_START_DATE = new Date(2023, 8, 1).getTime();
+const SYSTEM_START_DATE = new Date(2025, 11, 1).getTime();
 const daysOnline = Math.floor((Date.now() - SYSTEM_START_DATE) / (1000 * 60 * 60 * 24));
 
 const Dashboard = () => {
   const navigate = useNavigate();
 
-  // Mock user data
+  // Get user data from localStorage
+  const storedUser = JSON.parse(localStorage.getItem('userInfo') || '{}');
+
   const user = {
-    name: "崔子梁",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix",
-    role: "牛马研究生"
+    name: storedUser.realName || "崔子梁",
+    avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${storedUser.username || 'Felix'}`,
+    role: storedUser.role || "牛马研究生",
+    email: storedUser.email || "",
+    grade: storedUser.grade || ""
   };
 
   const menuItems = [
@@ -123,9 +123,7 @@ const Dashboard = () => {
     },
   ];
 
-  const handleLogout = () => {
-    navigate('/');
-  };
+
 
   return (
     <div className="relative min-h-screen w-full bg-slate-50 overflow-x-hidden font-rajdhani text-slate-800 selection:bg-cyan-100 selection:text-cyan-900">
@@ -146,75 +144,7 @@ const Dashboard = () => {
       </div>
 
       {/* Top Navigation Bar */}
-      <nav className="relative z-20 bg-white/70 backdrop-blur-xl border-b border-slate-200 px-6 py-4 sticky top-0 shadow-sm">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <div className="relative group">
-              <div className="absolute inset-0 bg-cyan-200/40 blur-lg rounded-full group-hover:bg-cyan-300/50 transition-all duration-500"></div>
-              <div className="relative bg-white p-2 rounded-lg border border-slate-200 shadow-sm group-hover:border-cyan-300 transition-colors">
-                <Cpu className="w-6 h-6 text-cyan-600" />
-              </div>
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-slate-900 tracking-wider font-orbitron">
-                LL-GROUP <span className="text-cyan-600">内部资源共享仓</span>
-              </h1>
-              <p className="text-[10px] text-slate-500 tracking-[0.2em] uppercase font-bold">Academic Management System</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-6">
-            {/* Search Bar */}
-            <div className="hidden md:flex items-center bg-slate-100/80 border border-slate-200 rounded-full px-4 py-2 focus-within:border-cyan-400 focus-within:bg-white focus-within:shadow-md transition-all w-64 group">
-              <Search className="w-4 h-4 text-slate-400 group-focus-within:text-cyan-500 transition-colors" />
-              <input 
-                type="text" 
-                placeholder="SEARCH DATABASE..." 
-                className="bg-transparent border-none outline-none ml-2 text-sm text-slate-600 w-full placeholder:text-slate-400 font-mono"
-              />
-            </div>
-
-            <div className="flex items-center gap-4">
-              <button className="p-2 text-slate-500 hover:text-cyan-600 hover:bg-slate-100 rounded-full relative transition-all">
-                <Bell className="w-5 h-5" />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full shadow-sm animate-pulse"></span>
-              </button>
-              
-              <div className="flex items-center gap-4 pl-6 border-l border-slate-200">
-                <div className="text-right hidden sm:block">
-                  <p className="text-sm font-bold text-slate-800 tracking-wide">{user.name}</p>
-                  <p className="text-[10px] text-cyan-600 uppercase tracking-wider font-mono font-bold">{user.role}</p>
-                </div>
-                
-                <div className="relative group cursor-pointer">
-                  <div className="absolute inset-0 bg-gradient-to-tr from-cyan-300 to-purple-300 rounded-full opacity-0 group-hover:opacity-100 blur transition-opacity duration-300"></div>
-                  <img 
-                    src={user.avatar} 
-                    alt="User Avatar" 
-                    className="relative w-10 h-10 rounded-full border-2 border-white shadow-sm group-hover:border-transparent transition-all"
-                  />
-                  
-                  {/* Dropdown Menu */}
-                  <div className="absolute right-0 mt-4 w-56 bg-white/90 backdrop-blur-xl rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] py-2 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all transform origin-top-right border border-slate-100 z-50 translate-y-2 group-hover:translate-y-0">
-                    <div className="px-4 py-3 border-b border-slate-100">
-                      <p className="text-xs font-mono text-slate-400 uppercase tracking-wider font-bold">User Profile</p>
-                    </div>
-                    <a href="#" className="block px-4 py-3 text-sm text-slate-600 hover:bg-slate-50 hover:text-cyan-600 flex items-center gap-3 transition-colors font-medium">
-                      <User className="w-4 h-4" /> 个人资料
-                    </a>
-                    <button 
-                      onClick={handleLogout}
-                      className="w-full text-left px-4 py-3 text-sm text-rose-500 hover:bg-rose-50 flex items-center gap-3 transition-colors font-medium"
-                    >
-                      <LogOut className="w-4 h-4" /> 退出系统
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <TopNavigation />
 
       {/* Main Content */}
       <main className="relative z-10 max-w-7xl mx-auto px-6 py-12">

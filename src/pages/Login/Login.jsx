@@ -20,6 +20,8 @@ const Login = () => {
       const result = await api.login(username, password);
       
       if (result.code === 200) {
+        // 保存用户信息到本地存储
+        localStorage.setItem('userInfo', JSON.stringify(result.data));
         // 登录成功，跳转到仪表盘
         navigate('/dashboard');
       } else {
