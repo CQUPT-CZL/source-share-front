@@ -5,8 +5,11 @@ export const request = async (endpoint, options = {}) => {
   const url = `${BASE_URL}${endpoint}`;
   const method = options.method || 'GET';
   
+  const token = localStorage.getItem('token');
+  
   const defaultHeaders = {
-    'Content-Type': 'application/json',
+    ...(options.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
+    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
   };
 
   const config = {
@@ -50,9 +53,41 @@ export const request = async (endpoint, options = {}) => {
 // 具体的 API 集合
 export const api = {
   login: (username, password) => {
-    return request('/login', {
+    return request('/tokens', {
       method: 'POST',
       body: JSON.stringify({ username, password }),
+    });
+  },
+  
+  // 获取板块根目录ID
+  getResourcesRootId: (category) => {
+    return request(`/resources/root-id?category=${category}`, {
+      method: 'GET',
+    });
+  },
+
+  // 获取子目录/文件
+  getResourcesChildren: (parentId) => {
+    return request(`/resources/${parentId}/children`, {
+      method: 'GET',
+    });
+  },
+
+  // 创建资源 (目录/文件)
+  createResource: (data) => {
+    return request('/resources', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  // 上传文件
+  uploadFile: (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return request('/files/upload', {
+      method: 'POST',
+      body: formData,
     });
   },
 };

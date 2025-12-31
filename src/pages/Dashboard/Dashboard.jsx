@@ -14,6 +14,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import AntigravityBackground from '../../components/AntigravityBackground';
 import TopNavigation from '../../components/TopNavigation';
+import { api } from '../../utils/api';
 
 const SYSTEM_START_DATE = new Date(2025, 11, 1).getTime();
 const daysOnline = Math.floor((Date.now() - SYSTEM_START_DATE) / (1000 * 60 * 60 * 24));
@@ -125,6 +126,41 @@ const Dashboard = () => {
 
 
 
+  const handleCardClick = async (item) => {
+    // External links
+    if (item.path.startsWith('http')) {
+      window.open(item.path, '_blank');
+      return;
+    }
+
+    try {
+      // 1. Get Root ID
+      const data = await api.getResourcesRootId(item.enTitle);
+      console.log('Step 1 - Got Root ID:', data);
+      
+      // 2. Get Subdirectories (Real API Call)
+      // URL: /api/resources/{id}/children
+      console.log(`Step 2 - Fetching subdirectories for ID: ${data.data}`);
+      const childrenData = await api.getResourcesChildren(data.data);
+      console.log('Step 2 - Got Children:', childrenData);
+
+      // 3. Navigate
+      // Pass both children data AND the root ID itself
+      navigate(item.path, { 
+        state: { 
+          resourceData: childrenData,
+          rootId: data.data 
+        } 
+      });
+
+    } catch (error) {
+      console.error('Navigation Error:', error);
+      // Optional: Navigate anyway or show error
+      // navigate(item.path); 
+      alert('Failed to connect to resource server. Please ensure backend is running at http://localhost:8080');
+    }
+  };
+
   return (
     <div className="relative min-h-screen w-full bg-slate-50 overflow-x-hidden font-rajdhani text-slate-800 selection:bg-cyan-100 selection:text-cyan-900">
       {/* Background Elements */}
@@ -166,13 +202,7 @@ const Dashboard = () => {
             return (
             <div 
               key={index}
-              onClick={() => {
-                if (isExternal) {
-                  window.open(item.path, '_blank');
-                } else {
-                  navigate(item.path);
-                }
-              }}
+              onClick={() => handleCardClick(item)}
               className={`
                 group relative bg-white/60 backdrop-blur-md p-6 rounded-2xl border border-slate-200 
                 hover:border-slate-300 transition-all duration-300 cursor-pointer overflow-hidden
