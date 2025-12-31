@@ -31,7 +31,7 @@ const TopNavigation = () => {
   return (
     <nav className="relative z-20 bg-white/70 backdrop-blur-xl border-b border-slate-200 px-6 py-4 sticky top-0 shadow-sm">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 cursor-pointer" onClick={() => navigate('/dashboard')}>
           <div className="relative group">
             <div className="absolute inset-0 bg-cyan-200/40 blur-lg rounded-full group-hover:bg-cyan-300/50 transition-all duration-500"></div>
             <div className="relative bg-white p-2 rounded-lg border border-slate-200 shadow-sm group-hover:border-cyan-300 transition-colors">

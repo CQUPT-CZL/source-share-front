@@ -126,39 +126,20 @@ const Dashboard = () => {
 
 
 
-  const handleCardClick = async (item) => {
+  const handleCardClick = (item) => {
     // External links
     if (item.path.startsWith('http')) {
       window.open(item.path, '_blank');
       return;
     }
 
-    try {
-      // 1. Get Root ID
-      const data = await api.getResourcesRootId(item.enTitle);
-      console.log('Step 1 - Got Root ID:', data);
-      
-      // 2. Get Subdirectories (Real API Call)
-      // URL: /api/resources/{id}/children
-      console.log(`Step 2 - Fetching subdirectories for ID: ${data.data}`);
-      const childrenData = await api.getResourcesChildren(data.data);
-      console.log('Step 2 - Got Children:', childrenData);
-
-      // 3. Navigate
-      // Pass both children data AND the root ID itself
-      navigate(item.path, { 
-        state: { 
-          resourceData: childrenData,
-          rootId: data.data 
-        } 
-      });
-
-    } catch (error) {
-      console.error('Navigation Error:', error);
-      // Optional: Navigate anyway or show error
-      // navigate(item.path); 
-      alert('Failed to connect to resource server. Please ensure backend is running at http://localhost:8080');
-    }
+    // Navigate immediately to show loading state in the next page
+    navigate(item.path, { 
+      state: { 
+        category: item.enTitle,
+        rootName: item.title
+      } 
+    });
   };
 
   return (
