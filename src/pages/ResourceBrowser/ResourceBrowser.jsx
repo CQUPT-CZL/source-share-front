@@ -10,13 +10,15 @@ import ResourceList from './components/ResourceList';
 import CreateDirectoryModal from './components/CreateDirectoryModal';
 import UploadFileModal from './components/UploadFileModal';
 import FileDetailModal from './components/FileDetailModal';
+import ConfirmModal from '../../components/ConfirmModal';
+import Toast from '../../components/Toast';
 
 const CATEGORY_MAP = {
   '/homework': { en: 'COURSEWORK', cn: '课程作业' },
   '/proposal': { en: 'PROPOSAL', cn: '开题报告' },
   '/midterm': { en: 'MIDTERM', cn: '中期考核' },
   '/thesis': { en: 'THESIS', cn: '毕业设计' },
-  '/message-board': { en: 'MESSAGE BOARD', cn: '留言板' },
+  '/message-board': { en: 'OTHERS', cn: '综合资源' },
 };
 
 const ResourceBrowser = () => {
@@ -40,6 +42,19 @@ const ResourceBrowser = () => {
   
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedDetailResource, setSelectedDetailResource] = useState(null);
+
+  // Delete State
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [resourceToDelete, setResourceToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const [toast, setToast] = useState({ message: '', type: 'success' });
+
+  // User Info
+  const storedUser = JSON.parse(localStorage.getItem('userInfo') || '{}');
+  const currentUser = {
+    id: storedUser.id,
+    role: storedUser.role
+  };
 
   // State Persistence & Initialization
   useEffect(() => {
@@ -337,7 +352,45 @@ const ResourceBrowser = () => {
     if (resource?.properties?.url) {
         window.open(resource.properties.url, '_blank');
     } else {
-        alert('文件链接无效');
+        setToast({ message: '文件链接无效', type: 'error' });
+    }
+  };
+
+  const handleDeleteRequest = (resource) => {
+    setResourceToDelete(resource);
+    setShowConfirmModal(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!resourceToDelete) return;
+
+    setDeleting(true);
+    try {
+      await api.deleteResource(resourceToDelete.id);
+      
+      // If we deleted the current folder (folder delete case), we need to go up one level
+      if (resourceToDelete.id === getCurrentParentId()) {
+         handleBreadcrumbClick(currentPath.length - 2);
+         setToast({ message: 'Folder deleted successfully', type: 'success' });
+      } else {
+         // Standard file delete or sub-folder delete
+         const parentId = getCurrentParentId();
+         if (parentId) {
+            const response = await api.getResourcesChildren(parentId);
+            const children = response.data || response;
+            setResources(Array.isArray(children) ? children : []);
+         }
+         setToast({ message: 'Resource deleted successfully', type: 'success' });
+      }
+      
+      setShowConfirmModal(false);
+      setShowDetailModal(false); // Close detail modal if open
+    } catch (error) {
+      console.error('Failed to delete resource:', error);
+      setToast({ message: 'Failed to delete resource', type: 'error' });
+    } finally {
+      setDeleting(false);
+      setResourceToDelete(null);
     }
   };
 
@@ -382,12 +435,25 @@ const ResourceBrowser = () => {
       navigate('/dashboard');
   };
 
+  const isCurrentFolderEmpty = resources.length === 0;
+  const currentFolder = currentPath.length > 0 ? currentPath[currentPath.length - 1] : null;
+  const canDeleteCurrentFolder = currentFolder && isCurrentFolderEmpty && (
+    (currentUser?.id && String(currentFolder.createdBy) === String(currentUser.id)) || 
+    currentUser?.role?.toLowerCase() === 'admin'
+  );
+
   return (
     <div className="min-h-screen bg-slate-50 font-rajdhani text-slate-800">
       <AntigravityBackground />
       
       {/* Top Navigation */}
       <TopNavigation />
+      
+      <Toast 
+        message={toast.message} 
+        type={toast.type} 
+        onClose={() => setToast({ ...toast, message: '' })} 
+      />
 
       <main className="max-w-7xl mx-auto px-6 py-8 relative z-10">
         
@@ -400,6 +466,8 @@ const ResourceBrowser = () => {
             onUpload={() => setShowUploadModal(true)}
             viewMode={viewMode}
             setViewMode={setViewMode}
+            canDeleteCurrentFolder={canDeleteCurrentFolder}
+            onDeleteCurrentFolder={() => handleDeleteRequest(currentFolder)}
         />
 
         <ResourceList 
@@ -408,6 +476,8 @@ const ResourceBrowser = () => {
             loading={loading}
             onResourceClick={handleResourceClick}
             onDownload={handleDownload}
+            onDelete={handleDeleteRequest}
+            currentUser={currentUser}
         />
 
       </main>
@@ -432,6 +502,17 @@ const ResourceBrowser = () => {
         onClose={() => setShowDetailModal(false)}
         resource={selectedDetailResource}
         onDownload={handleDownload}
+        onDelete={handleDeleteRequest}
+        currentUser={currentUser}
+      />
+      
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        onConfirm={handleDeleteConfirm}
+        loading={deleting}
+        title="DELETE RESOURCE"
+        message={`Are you sure you want to delete "${resourceToDelete?.nodeName}"? This action cannot be undone.`}
       />
     </div>
   );

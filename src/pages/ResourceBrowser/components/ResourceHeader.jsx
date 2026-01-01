@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, ChevronRight, Plus, Upload, Grid, List } from 'lucide-react';
+import { ArrowLeft, ChevronRight, Plus, Upload, Grid, List, Trash2 } from 'lucide-react';
 
 const ResourceHeader = ({ 
   currentPath, 
@@ -9,7 +9,9 @@ const ResourceHeader = ({
   onCreateFolder, 
   onUpload, 
   viewMode, 
-  setViewMode 
+  setViewMode,
+  canDeleteCurrentFolder,
+  onDeleteCurrentFolder
 }) => {
   return (
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
@@ -43,6 +45,17 @@ const ResourceHeader = ({
 
       {/* Toolbar */}
       <div className="flex items-center gap-4">
+        {canDeleteCurrentFolder && (
+          <button 
+            onClick={onDeleteCurrentFolder}
+            className="flex items-center gap-2 bg-rose-50 text-rose-500 border border-rose-100 px-4 py-2 rounded-xl hover:bg-rose-100 transition-colors font-bold text-sm"
+            title="Delete current empty folder"
+          >
+            <Trash2 className="w-4 h-4" />
+            <span className="hidden sm:inline">DELETE FOLDER</span>
+          </button>
+        )}
+
         <button 
           onClick={onCreateFolder}
           className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-xl hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/10 font-bold text-sm"

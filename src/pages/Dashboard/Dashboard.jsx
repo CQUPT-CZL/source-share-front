@@ -79,9 +79,9 @@ const Dashboard = () => {
       bgHover: "group-hover:bg-rose-50"
     },
     { 
-      title: "留言板", 
-      enTitle: "MESSAGE BOARD",
-      icon: <MessageSquare className="w-8 h-8 text-amber-600" />, 
+      title: "综合资源", 
+      enTitle: "OTHERS",
+      icon: <Activity className="w-8 h-8 text-amber-600" />, 
       desc: "团队内部交流与讨论", 
       path: "/message-board",
       color: "group-hover:text-amber-600",

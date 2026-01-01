@@ -98,4 +98,11 @@ export const api = {
       body: JSON.stringify(userData),
     });
   },
+
+  // 删除资源
+  deleteResource: (resourceId) => {
+    return request(`/resources/${resourceId}`, {
+      method: 'DELETE',
+    });
+  },
 };

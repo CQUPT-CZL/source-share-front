@@ -1,11 +1,16 @@
 import React from 'react';
-import { X, FileText, Download } from 'lucide-react';
+import { X, FileText, Download, Trash2 } from 'lucide-react';
 import { getFileConfig, formatSize, formatTime } from '../../../utils/resourceUtils.jsx';
 
-const FileDetailModal = ({ isOpen, onClose, resource, onDownload }) => {
+const FileDetailModal = ({ isOpen, onClose, resource, onDownload, onDelete, currentUser }) => {
   if (!isOpen || !resource) return null;
 
   const fileConfig = getFileConfig(resource.properties?.extension);
+  
+  // Permission Check
+  const isOwner = currentUser?.id && String(resource.createdBy) === String(currentUser.id);
+  const isAdmin = currentUser?.role?.toLowerCase() === 'admin';
+  const canDelete = isOwner || isAdmin;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm">
@@ -67,13 +72,25 @@ const FileDetailModal = ({ isOpen, onClose, resource, onDownload }) => {
             </div>
           </div>
 
-          <button 
-            onClick={() => onDownload(resource)}
-            className="w-full py-4 bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-bold rounded-xl shadow-lg shadow-cyan-600/20 hover:shadow-cyan-600/30 hover:from-cyan-500 hover:to-blue-500 transition-all flex items-center justify-center gap-3 group"
-          >
-            <Download className="w-5 h-5 group-hover:animate-bounce" />
-            <span>DOWNLOAD FILE</span>
-          </button>
+          <div className="flex flex-col gap-4">
+            <button 
+                onClick={() => onDownload(resource)}
+                className="w-full py-4 bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-bold rounded-xl shadow-lg shadow-cyan-600/20 hover:shadow-cyan-600/30 hover:from-cyan-500 hover:to-blue-500 transition-all flex items-center justify-center gap-3 group"
+            >
+                <Download className="w-5 h-5 group-hover:animate-bounce" />
+                <span>DOWNLOAD FILE</span>
+            </button>
+            
+            {canDelete && (
+                <button 
+                    onClick={() => onDelete(resource)}
+                    className="text-xs font-bold text-slate-300 hover:text-rose-500 transition-colors flex items-center justify-center gap-1.5 py-2"
+                >
+                    <Trash2 className="w-3 h-3" />
+                    <span>DELETE THIS RESOURCE</span>
+                </button>
+            )}
+          </div>
         </div>
       </div>
     </div>

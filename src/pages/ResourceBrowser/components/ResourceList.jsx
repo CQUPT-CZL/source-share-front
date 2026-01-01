@@ -1,8 +1,8 @@
 import React from 'react';
-import { Folder, Clock, Download, HardDrive, MoreVertical } from 'lucide-react';
+import { Folder, Clock, Download, HardDrive, Trash2 } from 'lucide-react';
 import { getFileConfig, formatTime, formatSize } from '../../../utils/resourceUtils.jsx';
 
-const ResourceList = ({ resources, viewMode, loading, onResourceClick, onDownload }) => {
+const ResourceList = ({ resources, viewMode, loading, onResourceClick, onDownload, onDelete, currentUser }) => {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-24">
@@ -32,6 +32,11 @@ const ResourceList = ({ resources, viewMode, loading, onResourceClick, onDownloa
         const isDir = item.resourceType === 'DIRECTORY';
         const fileConfig = isDir ? null : getFileConfig(item.properties?.extension);
         
+        // Permission Check
+        const isOwner = currentUser?.id && String(item.createdBy) === String(currentUser.id);
+        const isAdmin = currentUser?.role?.toLowerCase() === 'admin';
+        const canDelete = isOwner || isAdmin;
+
         return (
           <div 
             key={item.id}
@@ -84,18 +89,19 @@ const ResourceList = ({ resources, viewMode, loading, onResourceClick, onDownloa
                     </div>
                 </div>
 
-                {/* Hover Overlay Actions (for files) */}
+                {/* Hover Overlay Actions (for files) - NO BLUR, just simple buttons */}
+                {/* Only show for files, and use simple positioning */}
                 {!isDir && (
-                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4">
+                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                         <button 
                             onClick={(e) => {
                                 e.stopPropagation();
                                 onDownload(item);
                             }}
-                            className="p-3 bg-white text-slate-900 rounded-full hover:bg-cyan-500 hover:text-white transition-all transform hover:scale-110 shadow-lg"
+                            className="p-2 bg-white text-slate-500 rounded-lg hover:bg-cyan-500 hover:text-white shadow-md border border-slate-100 transition-colors"
                             title="Download"
                         >
-                            <Download className="w-5 h-5" />
+                            <Download className="w-4 h-4" />
                         </button>
                     </div>
                 )}
@@ -138,6 +144,7 @@ const ResourceList = ({ resources, viewMode, loading, onResourceClick, onDownloa
                             onDownload(item);
                         }}
                         className="p-2 text-slate-400 hover:text-cyan-600 hover:bg-cyan-50 rounded-lg transition-colors"
+                        title="Download"
                     >
                         <Download className="w-5 h-5" />
                     </button>
