@@ -100,8 +100,8 @@ const TopNavigation = ({ currentFolderId, onFileClick }) => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('userInfo');
-    localStorage.removeItem('token');
+    localStorage.clear(); // Clear all local storage items including token and userInfo
+    sessionStorage.clear(); // Clear session storage as well
     navigate('/');
   };
 
@@ -242,9 +242,6 @@ const TopNavigation = ({ currentFolderId, onFileClick }) => {
                       {user.grade && <p className="text-xs text-slate-500 font-medium mt-1">Grade: {user.grade}级</p>}
                       {user.email && <p className="text-xs text-slate-500 truncate mt-0.5" title={user.email}>{user.email}</p>}
                     </div>
-                    <a href="#" className="block px-4 py-3 text-sm text-slate-600 hover:bg-slate-50 hover:text-cyan-600 flex items-center gap-3 transition-colors font-medium">
-                      <User className="w-4 h-4" /> 个人资料
-                    </a>
                     {(user.role === 'admin' || user.role === 'ADMIN') && (
                       <>
                         <button 

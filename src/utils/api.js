@@ -37,6 +37,16 @@ export const request = async (endpoint, options = {}) => {
 
   try {
     const response = await fetch(url, config);
+    
+    // Handle 401 Unauthorized globally
+    if (response.status === 401) {
+      console.warn('Unauthorized access detected. Clearing session and redirecting to login.');
+      localStorage.clear();
+      sessionStorage.clear();
+      window.location.href = '/';
+      return;
+    }
+
     const data = await response.json();
     
     // --- 【响应拦截：Debug 输出】 ---

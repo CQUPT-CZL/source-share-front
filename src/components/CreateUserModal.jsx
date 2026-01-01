@@ -56,7 +56,7 @@ const CreateUserModal = ({ isOpen, onClose, onSubmit, loading }) => {
                   name="username"
                   value={formData.username}
                   onChange={handleChange}
-                  placeholder="e.g. cuizl"
+                  placeholder="e.g. raa"
                   className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/10 transition-all font-mono text-sm"
                   required
                 />
@@ -72,7 +72,7 @@ const CreateUserModal = ({ isOpen, onClose, onSubmit, loading }) => {
                   name="realName"
                   value={formData.realName}
                   onChange={handleChange}
-                  placeholder="e.g. 崔子梁"
+                  placeholder="e.g. 冉安安"
                   className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/10 transition-all font-mono text-sm"
                   required
                 />

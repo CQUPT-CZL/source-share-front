@@ -51,9 +51,9 @@ const Dashboard = () => {
   const storedUser = JSON.parse(localStorage.getItem('userInfo') || '{}');
 
   const user = {
-    name: storedUser.realName || "崔子梁",
-    avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${storedUser.username || 'Felix'}`,
-    role: storedUser.role || "牛马研究生",
+    name: storedUser.realName || "User",
+    avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${storedUser.username || 'User'}`,
+    role: storedUser.role || "Member",
     email: storedUser.email || "",
     grade: storedUser.grade || ""
   };
