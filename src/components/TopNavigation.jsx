@@ -1,25 +1,92 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   Search,
-  Bell,
   User,
   LogOut,
   Cpu,
   UserPlus,
-  Activity
+  Activity,
+  File,
+  Folder,
+  Loader2
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../utils/api';
 import CreateUserModal from './CreateUserModal';
 import LogViewerModal from './LogViewerModal';
 import Toast from './Toast';
 
-const TopNavigation = () => {
+const TopNavigation = ({ currentFolderId, onFileClick }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [showCreateUserModal, setShowCreateUserModal] = useState(false);
   const [showLogModal, setShowLogModal] = useState(false);
   const [creatingUser, setCreatingUser] = useState(false);
   const [toast, setToast] = useState({ message: '', type: 'success' });
+
+  // Search State
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [showResults, setShowResults] = useState(false);
+  const [searching, setSearching] = useState(false);
+  const searchRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setShowResults(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) return;
+    setSearching(true);
+    setShowResults(true);
+    try {
+      const res = await api.searchResources(searchQuery, currentFolderId);
+      if (res && res.code === 200) {
+        setSearchResults(res.data || []);
+      }
+    } catch (error) {
+      console.error('Search failed:', error);
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
+  const handleResultClick = (item) => {
+    // 1. If it's a file, trigger the callback to show detail modal
+    if (item.resourceType === 'FILE') {
+        if (onFileClick) {
+            onFileClick(item);
+        } else {
+            console.warn('File click handler not provided to TopNavigation');
+        }
+        setShowResults(false);
+        return;
+    }
+
+    // 2. If it's a directory, navigate to it
+    let targetPath = location.pathname;
+    if (targetPath === '/dashboard' || targetPath === '/') {
+        // Map category/displayPath to route if possible, otherwise default to homework
+        // This is a simple heuristic; robust solution would map root ID to route
+        targetPath = '/homework'; 
+    }
+    
+    // Use the ID directly for folder navigation
+    navigate(`${targetPath}?folder=${item.id}`);
+    setShowResults(false);
+  };
 
   // Get user data from localStorage
   const storedUser = JSON.parse(localStorage.getItem('userInfo') || '{}');
@@ -85,20 +152,68 @@ const TopNavigation = () => {
 
           <div className="flex items-center gap-6">
             {/* Search Bar */}
-            <div className="hidden md:flex items-center bg-slate-100/80 border border-slate-200 rounded-full px-4 py-2 focus-within:border-cyan-400 focus-within:bg-white focus-within:shadow-md transition-all w-64 group">
-              <Search className="w-4 h-4 text-slate-400 group-focus-within:text-cyan-500 transition-colors" />
-              <input 
-                type="text" 
-                placeholder="SEARCH DATABASE..." 
-                className="bg-transparent border-none outline-none ml-2 text-sm text-slate-600 w-full placeholder:text-slate-400 font-mono"
-              />
+            <div ref={searchRef} className="relative hidden md:flex flex-col z-50">
+              <div className="flex items-center bg-slate-100/80 border border-slate-200 rounded-full px-4 py-2 focus-within:border-cyan-400 focus-within:bg-white focus-within:shadow-md transition-all w-64 group">
+                <Search 
+                  className={`w-4 h-4 transition-colors cursor-pointer ${searching ? 'text-cyan-500 animate-pulse' : 'text-slate-400 group-focus-within:text-cyan-500'}`} 
+                  onClick={handleSearch}
+                />
+                <input 
+                  type="text" 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder={searching ? "SEARCHING..." : "SEARCH DATABASE..."}
+                  className="bg-transparent border-none outline-none ml-2 text-sm text-slate-600 w-full placeholder:text-slate-400 font-mono"
+                />
+              </div>
+
+              {/* Search Results Dropdown */}
+              {showResults && searchQuery && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden max-h-80 overflow-y-auto animate-fade-in-up">
+                  {searching ? (
+                    <div className="p-4 flex items-center justify-center text-slate-400 gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span className="text-xs font-mono">SEARCHING...</span>
+                    </div>
+                  ) : searchResults.length > 0 ? (
+                    <div className="py-2">
+                      {searchResults.map((item) => (
+                        <div 
+                          key={item.id}
+                          onClick={() => handleResultClick(item)}
+                          className="px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-50 last:border-none flex items-center gap-3 transition-colors group"
+                        >
+                          <div className="p-2 bg-slate-100 rounded-lg group-hover:bg-cyan-50 transition-colors">
+                            {item.resourceType === 'DIRECTORY' ? (
+                              <Folder className="w-4 h-4 text-amber-500" />
+                            ) : (
+                              <File className="w-4 h-4 text-cyan-500" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-bold text-slate-700 truncate font-rajdhani group-hover:text-cyan-700 transition-colors">{item.nodeName}</p>
+                            <div className="flex items-center gap-2 text-[10px] text-slate-400 font-mono truncate">
+                              <span className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-500 font-bold">
+                                {item.properties?.displayPath || 'ROOT'}
+                              </span>
+                              <span>•</span>
+                              <span>{new Date(item.updatedAt || item.createdAt).toLocaleDateString()}</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="p-4 text-center text-slate-400 text-xs font-mono">
+                      NO RESULTS FOUND
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="flex items-center gap-4">
-              <button className="p-2 text-slate-500 hover:text-cyan-600 hover:bg-slate-100 rounded-full relative transition-all">
-                <Bell className="w-5 h-5" />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full shadow-sm animate-pulse"></span>
-              </button>
               
               <div className="flex items-center gap-4 pl-6 border-l border-slate-200">
                 <div className="text-right hidden sm:block">

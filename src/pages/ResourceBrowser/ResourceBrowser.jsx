@@ -60,6 +60,14 @@ const ResourceBrowser = () => {
 
   console.log('ResourceBrowser User Debug:', { storedUser, currentUser });
 
+  // Auth Check
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/', { replace: true });
+    }
+  }, [navigate]);
+
   // State Persistence & Initialization
   useEffect(() => {
     const init = async () => {
@@ -451,7 +459,13 @@ const ResourceBrowser = () => {
       <AntigravityBackground />
       
       {/* Top Navigation */}
-      <TopNavigation />
+      <TopNavigation 
+        currentFolderId={getCurrentParentId()} 
+        onFileClick={(file) => {
+            setSelectedDetailResource(file);
+            setShowDetailModal(true);
+        }}
+      />
       
       <Toast 
         message={toast.message} 

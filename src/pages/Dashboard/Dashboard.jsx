@@ -18,6 +18,9 @@ import { useNavigate } from 'react-router-dom';
 import AntigravityBackground from '../../components/AntigravityBackground';
 import TopNavigation from '../../components/TopNavigation';
 import { api } from '../../utils/api';
+import FileDetailModal from '../ResourceBrowser/components/FileDetailModal';
+import ConfirmModal from '../../components/ConfirmModal';
+import Toast from '../../components/Toast';
 
 const SYSTEM_START_DATE = new Date(2025, 11, 1).getTime();
 const daysOnline = Math.floor((Date.now() - SYSTEM_START_DATE) / (1000 * 60 * 60 * 24));
@@ -36,6 +39,14 @@ const Dashboard = () => {
   const [stats, setStats] = useState(null);
   const [loadingStats, setLoadingStats] = useState(true);
 
+  // Modal States for Search Result Interaction
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [selectedDetailResource, setSelectedDetailResource] = useState(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [resourceToDelete, setResourceToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const [toast, setToast] = useState({ message: '', type: 'success' });
+
   // Get user data from localStorage
   const storedUser = JSON.parse(localStorage.getItem('userInfo') || '{}');
 
@@ -47,21 +58,62 @@ const Dashboard = () => {
     grade: storedUser.grade || ""
   };
 
+  // Construct currentUser for permission checks (matching ResourceBrowser logic)
+  const rawUserId = storedUser.id || storedUser.userId || storedUser.user?.id || storedUser.user?.userId;
+  const currentUser = {
+    id: rawUserId,
+    role: storedUser.role || storedUser.user?.role
+  };
+
+  const fetchStats = async () => {
+      try {
+          const response = await api.getStatistics();
+          if (response && response.code === 200) {
+              setStats(response.data);
+          }
+      } catch (error) {
+          console.error('Failed to fetch statistics:', error);
+      } finally {
+          setLoadingStats(false);
+      }
+  };
+
   useEffect(() => {
-    const fetchStats = async () => {
-        try {
-            const response = await api.getStatistics();
-            if (response && response.code === 200) {
-                setStats(response.data);
-            }
-        } catch (error) {
-            console.error('Failed to fetch statistics:', error);
-        } finally {
-            setLoadingStats(false);
-        }
-    };
     fetchStats();
   }, []);
+
+  const handleDownload = (resource) => {
+    if (resource?.properties?.url) {
+        window.open(resource.properties.url, '_blank');
+    } else {
+        setToast({ message: '文件链接无效', type: 'error' });
+    }
+  };
+
+  const handleDeleteRequest = (resource) => {
+    setResourceToDelete(resource);
+    setShowConfirmModal(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!resourceToDelete) return;
+    setDeleting(true);
+    try {
+      await api.deleteResource(resourceToDelete.id);
+      setToast({ message: '文件删除成功', type: 'success' });
+      setShowDetailModal(false);
+      setShowConfirmModal(false);
+      setResourceToDelete(null);
+      // Refresh stats
+      fetchStats();
+    } catch (error) {
+      console.error('Failed to delete resource:', error);
+      setToast({ message: '删除失败，请重试', type: 'error' });
+    } finally {
+      setDeleting(false);
+    }
+  };
+
 
   const processedFileTypes = React.useMemo(() => {
     if (!stats?.fileTypeCounts) return [];
@@ -204,7 +256,36 @@ const Dashboard = () => {
       </div>
 
       {/* Top Navigation Bar */}
-      <TopNavigation />
+      <TopNavigation 
+        onFileClick={(file) => {
+            setSelectedDetailResource(file);
+            setShowDetailModal(true);
+        }}
+      />
+      
+      <Toast 
+        message={toast.message} 
+        type={toast.type} 
+        onClose={() => setToast({ ...toast, message: '' })} 
+      />
+
+      <FileDetailModal
+        isOpen={showDetailModal}
+        onClose={() => setShowDetailModal(false)}
+        resource={selectedDetailResource}
+        onDownload={handleDownload}
+        onDelete={handleDeleteRequest}
+        currentUser={currentUser}
+      />
+
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        onConfirm={handleDeleteConfirm}
+        title="确认删除"
+        message={`确定要删除 "${resourceToDelete?.nodeName}" 吗？此操作不可恢复。`}
+        loading={deleting}
+      />
 
       {/* Main Content */}
       <main className="relative z-10 max-w-7xl mx-auto px-6 py-12">

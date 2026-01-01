@@ -99,6 +99,17 @@ export const api = {
     });
   },
 
+  // 搜索资源
+  searchResources: (keyword, folderId = null) => {
+    const query = new URLSearchParams({ keyword });
+    if (folderId) {
+      query.append('folderId', folderId);
+    }
+    return request(`/resources?${query.toString()}`, {
+      method: 'GET',
+    });
+  },
+
   // 删除资源
   deleteResource: (resourceId) => {
     return request(`/resources/${resourceId}`, {
