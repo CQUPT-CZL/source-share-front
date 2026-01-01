@@ -90,4 +90,12 @@ export const api = {
       body: formData,
     });
   },
+
+  // 注册用户 (管理员)
+  registerUser: (userData) => {
+    return request('/users', {
+      method: 'POST',
+      body: JSON.stringify(userData),
+    });
+  },
 };
