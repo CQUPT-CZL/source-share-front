@@ -51,10 +51,14 @@ const ResourceBrowser = () => {
 
   // User Info
   const storedUser = JSON.parse(localStorage.getItem('userInfo') || '{}');
+  // Try to find ID from various common fields, or nested user object
+  const rawUserId = storedUser.id || storedUser.userId || storedUser.user?.id || storedUser.user?.userId;
   const currentUser = {
-    id: storedUser.id,
-    role: storedUser.role
+    id: rawUserId,
+    role: storedUser.role || storedUser.user?.role
   };
+
+  console.log('ResourceBrowser User Debug:', { storedUser, currentUser });
 
   // State Persistence & Initialization
   useEffect(() => {

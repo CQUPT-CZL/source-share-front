@@ -112,4 +112,11 @@ export const api = {
       method: 'GET',
     });
   },
+
+  // 获取统计信息
+  getStatistics: () => {
+    return request('/statistics', {
+      method: 'GET',
+    });
+  },
 };

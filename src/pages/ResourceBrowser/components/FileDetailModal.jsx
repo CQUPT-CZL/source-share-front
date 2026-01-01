@@ -8,9 +8,26 @@ const FileDetailModal = ({ isOpen, onClose, resource, onDownload, onDelete, curr
   const fileConfig = getFileConfig(resource.properties?.extension);
   
   // Permission Check
-  const isOwner = currentUser?.id && String(resource.createdBy) === String(currentUser.id);
-  const isAdmin = currentUser?.role?.toLowerCase() === 'admin';
+  // 1. Owner check: Compare createdBy (resource owner ID) with currentUser.id
+  // 2. Admin check: Check if currentUser.role is 'admin' (case-insensitive)
+  // 3. Type safety: Ensure IDs are compared as strings to avoid type mismatch (e.g. number vs string)
+  // 4. Robustness: Check multiple potential field names for owner ID
+  const resourceOwnerId = resource?.createdBy || resource?.creatorId || resource?.userId || resource?.ownerId;
+  const isOwner = currentUser?.id && resourceOwnerId && String(resourceOwnerId) === String(currentUser.id);
+  const isAdmin = currentUser?.role && currentUser.role.toLowerCase() === 'admin';
   const canDelete = isOwner || isAdmin;
+
+  console.log('FileDetailModal Permission Debug:', { 
+    resourceId: resource.id,
+    resourceOwnerId,
+    resourceKeys: Object.keys(resource),
+    currentUserId: currentUser?.id, 
+    currentUserRole: currentUser?.role,
+    currentUserKeys: Object.keys(currentUser || {}),
+    isOwner, 
+    isAdmin, 
+    canDelete 
+  });
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm">

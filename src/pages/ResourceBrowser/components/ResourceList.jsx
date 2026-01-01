@@ -33,9 +33,10 @@ const ResourceList = ({ resources, viewMode, loading, onResourceClick, onDownloa
         const fileConfig = isDir ? null : getFileConfig(item.properties?.extension);
         
         // Permission Check
-        const isOwner = currentUser?.id && String(item.createdBy) === String(currentUser.id);
-        const isAdmin = currentUser?.role?.toLowerCase() === 'admin';
-        const canDelete = isOwner || isAdmin;
+          const itemOwnerId = item?.createdBy || item?.creatorId || item?.userId || item?.ownerId;
+          const isOwner = currentUser?.id && itemOwnerId && String(itemOwnerId) === String(currentUser.id);
+          const isAdmin = currentUser?.role && currentUser.role.toLowerCase() === 'admin';
+          const canDelete = isOwner || isAdmin;
 
         return (
           <div 

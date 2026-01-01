@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   BookOpen, 
   FileText, 
@@ -9,7 +9,10 @@ import {
   ChevronRight,
   Database,
   MessageSquare,
-  ExternalLink
+  ExternalLink,
+  PieChart,
+  HardDrive,
+  Files
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import AntigravityBackground from '../../components/AntigravityBackground';
@@ -19,8 +22,19 @@ import { api } from '../../utils/api';
 const SYSTEM_START_DATE = new Date(2025, 11, 1).getTime();
 const daysOnline = Math.floor((Date.now() - SYSTEM_START_DATE) / (1000 * 60 * 60 * 24));
 
+const formatBytes = (bytes, decimals = 1) => {
+    if (!+bytes) return '0 B';
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+};
+
 const Dashboard = () => {
   const navigate = useNavigate();
+  const [stats, setStats] = useState(null);
+  const [loadingStats, setLoadingStats] = useState(true);
 
   // Get user data from localStorage
   const storedUser = JSON.parse(localStorage.getItem('userInfo') || '{}');
@@ -32,6 +46,35 @@ const Dashboard = () => {
     email: storedUser.email || "",
     grade: storedUser.grade || ""
   };
+
+  useEffect(() => {
+    const fetchStats = async () => {
+        try {
+            const response = await api.getStatistics();
+            if (response && response.code === 200) {
+                setStats(response.data);
+            }
+        } catch (error) {
+            console.error('Failed to fetch statistics:', error);
+        } finally {
+            setLoadingStats(false);
+        }
+    };
+    fetchStats();
+  }, []);
+
+  const processedFileTypes = React.useMemo(() => {
+    if (!stats?.fileTypeCounts) return [];
+    const counts = stats.fileTypeCounts;
+    const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+    const top4 = sorted.slice(0, 4);
+    const othersCount = sorted.slice(4).reduce((acc, curr) => acc + curr[1], 0);
+    const result = top4.map(([type, count]) => ({ type, count }));
+    if (othersCount > 0) {
+        result.push({ type: 'OTHER', count: othersCount });
+    }
+    return result;
+  }, [stats]);
 
   const menuItems = [
     { 
@@ -165,15 +208,47 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <main className="relative z-10 max-w-7xl mx-auto px-6 py-12">
-        <header className="mb-12 relative">
-          <div className="absolute -left-20 top-0 bottom-0 w-1 bg-gradient-to-b from-cyan-400 to-transparent opacity-30"></div>
-          <h2 className="text-4xl md:text-5xl font-bold text-slate-900 font-orbitron tracking-tight">
-            WELCOME BACK, <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 to-purple-600">{user.name}</span>
-          </h2>
-          <p className="text-slate-500 mt-2 font-mono flex items-center gap-2 font-medium">
-            <Activity className="w-4 h-4 text-emerald-500" />
-            SYSTEM STATUS: ONLINE // DAY {daysOnline}
-          </p>
+        <header className="mb-12 relative flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+          <div className="relative">
+            <div className="absolute -left-20 top-0 bottom-0 w-1 bg-gradient-to-b from-cyan-400 to-transparent opacity-30"></div>
+            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 font-orbitron tracking-tight">
+                WELCOME BACK, <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 to-purple-600">{user.name}</span>
+            </h2>
+            <p className="text-slate-500 mt-2 font-mono flex items-center gap-2 font-medium">
+                <Activity className="w-4 h-4 text-emerald-500" />
+                SYSTEM STATUS: ONLINE // DAY {daysOnline}
+            </p>
+          </div>
+
+          {/* Stats Widget */}
+          {!loadingStats && stats && (
+            <div className="bg-white/60 backdrop-blur-md border border-slate-200 rounded-2xl p-4 flex gap-6 shadow-sm animate-fade-in-left">
+                <div className="flex flex-col gap-1 pr-6 border-r border-slate-200">
+                    <div className="flex items-center gap-2 text-slate-500 mb-1">
+                        <HardDrive className="w-4 h-4" />
+                        <span className="text-[10px] font-bold font-orbitron tracking-wider">TOTAL SIZE</span>
+                    </div>
+                    <span className="text-xl font-bold text-slate-800 font-mono">{formatBytes(stats.totalSize)}</span>
+                    <span className="text-xs text-slate-400 font-medium">{stats.totalCount} Files</span>
+                </div>
+                
+                <div className="flex gap-3 items-center">
+                    {processedFileTypes.map((item, idx) => (
+                        <div key={item.type} className="flex flex-col items-center gap-1 min-w-[3rem]">
+                            <div className={`
+                                w-8 h-1 rounded-full 
+                                ${idx === 0 ? 'bg-cyan-500' : 
+                                  idx === 1 ? 'bg-purple-500' : 
+                                  idx === 2 ? 'bg-emerald-500' : 
+                                  idx === 3 ? 'bg-rose-500' : 'bg-slate-400'}
+                            `}></div>
+                            <span className="text-xs font-bold text-slate-600 uppercase">{item.type}</span>
+                            <span className="text-[10px] font-mono text-slate-400">{item.count}</span>
+                        </div>
+                    ))}
+                </div>
+            </div>
+          )}
         </header>
 
         {/* Dashboard Grid */}
@@ -235,86 +310,6 @@ const Dashboard = () => {
             </div>
           );
           })}
-        </div>
-
-        {/* Information Center / Logs */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 bg-white/60 backdrop-blur-md rounded-2xl border border-slate-200 p-8 relative overflow-hidden shadow-sm">
-            <div className="absolute top-0 right-0 p-4 opacity-5">
-              <Database className="w-24 h-24 text-slate-900" />
-            </div>
-            
-            <div className="flex items-center gap-3 mb-8">
-              <Zap className="w-5 h-5 text-amber-500" />
-              <h3 className="text-lg font-bold text-slate-800 tracking-wider font-orbitron">SYSTEM LOGS & NOTIFICATIONS</h3>
-            </div>
-            
-            <div className="space-y-4">
-              {[1, 2, 3].map((_, i) => (
-                <div key={i} className="group flex items-start gap-4 p-4 rounded-xl bg-slate-50/50 border border-slate-100 hover:bg-white hover:border-cyan-200 hover:shadow-sm transition-all cursor-default">
-                  <div className="mt-1 w-2 h-2 rounded-full bg-cyan-500 shadow-[0_0_8px_rgba(6,182,212,0.4)]"></div>
-                  <div className="flex-1">
-                    <div className="flex justify-between items-start">
-                      <p className="text-sm font-medium text-slate-700 group-hover:text-cyan-700 transition-colors">
-                        <span className="text-cyan-600 font-mono mr-2 font-bold">[INFO]</span>
-                        新的课程作业 "高级人工智能" 已发布
-                      </p>
-                      <span className="text-xs font-mono text-slate-400 font-medium">10:30 AM</span>
-                    </div>
-                    <p className="text-xs text-slate-400 mt-1 font-mono">
-                      /system/notifications/coursework_update
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Quick Stats / Mini Module */}
-          <div className="bg-gradient-to-b from-white/80 to-slate-50/80 backdrop-blur-md rounded-2xl border border-slate-200 p-1 relative group shadow-sm">
-            <div className="absolute inset-0 bg-gradient-to-b from-cyan-200/30 to-purple-200/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl blur-xl"></div>
-            <div className="relative h-full bg-white/50 rounded-xl p-6 flex flex-col justify-between overflow-hidden">
-               {/* Decorative Circles */}
-               <div className="absolute -right-10 -top-10 w-32 h-32 border border-slate-100 rounded-full"></div>
-               <div className="absolute -right-6 -top-6 w-24 h-24 border border-slate-200 rounded-full"></div>
-
-               <div>
-                 <h3 className="text-lg font-bold text-slate-800 tracking-wider font-orbitron mb-1">PROJECT PROGRESS</h3>
-                 <p className="text-xs text-slate-500 font-mono font-bold">Current Research Status</p>
-               </div>
-
-               <div className="my-8 flex justify-center relative">
-                 <div className="w-32 h-32 rounded-full border-4 border-slate-100 flex items-center justify-center relative bg-white shadow-inner">
-                   <div className="absolute inset-0 border-4 border-cyan-500 rounded-full border-t-transparent border-l-transparent rotate-45"></div>
-                   <div className="text-center">
-                     <span className="text-3xl font-bold text-slate-800 font-orbitron">75<span className="text-sm text-slate-500">%</span></span>
-                   </div>
-                 </div>
-               </div>
-
-               <div className="space-y-4">
-                 <div>
-                   <div className="flex justify-between text-xs text-slate-500 font-mono font-bold mb-1">
-                     <span>DATA ANALYSIS</span>
-                     <span className="text-cyan-600">COMPLETE</span>
-                   </div>
-                   <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                     <div className="h-full bg-cyan-500 w-full shadow-[0_0_10px_rgba(6,182,212,0.3)]"></div>
-                   </div>
-                 </div>
-                 
-                 <div>
-                   <div className="flex justify-between text-xs text-slate-500 font-mono font-bold mb-1">
-                     <span>DOCUMENTATION</span>
-                     <span className="text-purple-600">IN PROGRESS</span>
-                   </div>
-                   <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                     <div className="h-full bg-purple-500 w-[60%] shadow-[0_0_10px_rgba(168,85,247,0.3)]"></div>
-                   </div>
-                 </div>
-               </div>
-            </div>
-          </div>
         </div>
       </main>
     </div>
