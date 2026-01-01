@@ -1,5 +1,5 @@
 // 统一的请求工具类
-const BASE_URL = 'http://10.16.27.222:8080/api';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://10.16.27.222:8080/api';
 
 export const request = async (endpoint, options = {}) => {
   const url = `${BASE_URL}${endpoint}`;
