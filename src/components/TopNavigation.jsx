@@ -5,16 +5,19 @@ import {
   User,
   LogOut,
   Cpu,
-  UserPlus
+  UserPlus,
+  Activity
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../utils/api';
 import CreateUserModal from './CreateUserModal';
+import LogViewerModal from './LogViewerModal';
 import Toast from './Toast';
 
 const TopNavigation = () => {
   const navigate = useNavigate();
   const [showCreateUserModal, setShowCreateUserModal] = useState(false);
+  const [showLogModal, setShowLogModal] = useState(false);
   const [creatingUser, setCreatingUser] = useState(false);
   const [toast, setToast] = useState({ message: '', type: 'success' });
 
@@ -128,12 +131,20 @@ const TopNavigation = () => {
                       <User className="w-4 h-4" /> 个人资料
                     </a>
                     {(user.role === 'admin' || user.role === 'ADMIN') && (
-                      <button 
-                        onClick={() => setShowCreateUserModal(true)}
-                        className="w-full text-left px-4 py-3 text-sm text-slate-600 hover:bg-slate-50 hover:text-cyan-600 flex items-center gap-3 transition-colors font-medium"
-                      >
-                        <UserPlus className="w-4 h-4" /> 分配用户
-                      </button>
+                      <>
+                        <button 
+                          onClick={() => setShowCreateUserModal(true)}
+                          className="w-full text-left px-4 py-3 text-sm text-slate-600 hover:bg-slate-50 hover:text-cyan-600 flex items-center gap-3 transition-colors font-medium"
+                        >
+                          <UserPlus className="w-4 h-4" /> 分配用户
+                        </button>
+                        <button 
+                          onClick={() => setShowLogModal(true)}
+                          className="w-full text-left px-4 py-3 text-sm text-slate-600 hover:bg-slate-50 hover:text-cyan-600 flex items-center gap-3 transition-colors font-medium"
+                        >
+                          <Activity className="w-4 h-4" /> 用户活动
+                        </button>
+                      </>
                     )}
                     <button 
                       onClick={handleLogout}
@@ -154,6 +165,11 @@ const TopNavigation = () => {
         onClose={() => setShowCreateUserModal(false)}
         onSubmit={handleCreateUser}
         loading={creatingUser}
+      />
+      
+      <LogViewerModal
+        isOpen={showLogModal}
+        onClose={() => setShowLogModal(false)}
       />
     </>
   );

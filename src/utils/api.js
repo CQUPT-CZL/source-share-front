@@ -105,4 +105,11 @@ export const api = {
       method: 'DELETE',
     });
   },
+
+  // 获取系统日志 (管理员)
+  getLogs: (page = 0, size = 20) => {
+    return request(`/logs?page=${page}&size=${size}`, {
+      method: 'GET',
+    });
+  },
 };
